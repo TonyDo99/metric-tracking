@@ -85,8 +85,7 @@ export class UnitService {
 
       if (payload.period) {
         queryBuilder.andWhere(
-          'u.created_at >= NOW() - INTERVAL :period MONTH',
-          { period: payload.period },
+          `u.created_at >= NOW() - INTERVAL '${payload.period}' MONTH`,
         );
       }
 

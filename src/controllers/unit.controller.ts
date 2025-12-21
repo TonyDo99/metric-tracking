@@ -73,8 +73,6 @@ export class UnitController {
         },
       );
 
-      console.log(serializedPayload);
-
       return await this.unitService.analytics(serializedPayload);
     } catch (error) {
       throw new BadRequestException(error.message);
