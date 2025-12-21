@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
-import { AppController } from './controllers/unit.controller';
-import { AppService } from './services/unit.service';
+import { DatabaseModule } from './infrastructures/database/database.module';
 
 @Module({
   imports: [
@@ -10,8 +9,9 @@ import { AppService } from './services/unit.service';
       envFilePath: `${join(process.cwd(), '.env')}`,
       isGlobal: true,
     }),
+    DatabaseModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
