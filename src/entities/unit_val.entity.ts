@@ -13,6 +13,9 @@ export class UnitValEntity extends AbstractEntity {
   @Column({ type: 'varchar', length: 255 })
   value: string;
 
-  @ManyToOne(() => UnitAttributeEntity, (ref) => ref.attributes)
+  @Column({ name: 'attribute_id', type: 'uuid', nullable: false })
+  attributeId: string;
+
+  @ManyToOne(() => UnitAttributeEntity, (ref) => ref.values)
   attribute: UnitAttributeEntity;
 }

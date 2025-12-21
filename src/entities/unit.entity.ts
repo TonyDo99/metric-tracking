@@ -11,6 +11,6 @@ export class UnitEntity extends AbstractEntity {
   @Column({ type: 'varchar' })
   name: string;
 
-  @OneToMany(() => UnitAttributeEntity, (attribute) => attribute.unit)
+  @OneToMany(() => UnitAttributeEntity, (ref) => ref.unit)
   attributes: UnitAttributeEntity[];
 }

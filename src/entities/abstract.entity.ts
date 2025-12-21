@@ -1,5 +1,11 @@
-import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  UpdateDateColumn,
+} from 'typeorm';
 
+@Entity()
 export class AbstractEntity {
   @CreateDateColumn({ nullable: false })
   createdAt: Date;

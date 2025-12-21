@@ -30,11 +30,11 @@ CREATE TABLE IF NOT EXISTS tb_unit_attribute (
 CREATE TABLE IF NOT EXISTS tb_unit_val (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   value VARCHAR(255) NOT NULL,
-  attributes_id UUID NOT NULL,
+  attribute_id UUID NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ NULL,
-  CONSTRAINT fk_unit_val_attr FOREIGN KEY ("attributes_id") REFERENCES tb_unit_attribute(id) ON DELETE CASCADE
+  CONSTRAINT fk_unit_val_attr FOREIGN KEY ("attribute_id") REFERENCES tb_unit_attribute(id) ON DELETE CASCADE
 );
 
 -- Ensure each attribute name is unique within its unit
@@ -42,7 +42,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_tb_unit_attribute_name_unit ON tb_unit_attr
 
 -- Helpful indexes for foreign keys
 CREATE INDEX IF NOT EXISTS ix_tb_unit_attribute_unit_id ON tb_unit_attribute("unit_id");
-CREATE INDEX IF NOT EXISTS ix_tb_unit_val_attributes_id ON tb_unit_val("attributes_id");
+CREATE INDEX IF NOT EXISTS ix_tb_unit_val_attribute_id ON tb_unit_val("attribute_id");
 
 -- Trigger to auto-update "updated_at" columns
 CREATE OR REPLACE FUNCTION set_updated_at_timestamp()
@@ -71,7 +71,7 @@ BEGIN
   END IF;
 END $$;
 
--- Seed data for units and attributes
+-- Seed data for units and attribute
 DO $$
 DECLARE
   distance_id UUID;
@@ -87,7 +87,7 @@ BEGIN
     INSERT INTO tb_unit (name) VALUES ('Temperature') RETURNING id INTO temperature_id;
   END IF;
 
-  -- Distance attributes
+  -- Distance attribute
   IF NOT EXISTS (SELECT 1 FROM tb_unit_attribute WHERE name = 'meter' AND "unit_id" = distance_id) THEN
     INSERT INTO tb_unit_attribute (name, base, "unit_id") VALUES ('meter', TRUE, distance_id);
   END IF;
@@ -114,6 +114,41 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM tb_unit_attribute WHERE name = 'kelvin' AND "unit_id" = temperature_id) THEN
     INSERT INTO tb_unit_attribute (name, base, "unit_id") VALUES ('kelvin', FALSE, temperature_id);
   END IF;
+
+  -- Seed sample numeric string values into tb_unit_val
+  -- Distance: e.g., "342.43" for centimeter, "12.5" for meter, etc.
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '12.50', id FROM tb_unit_attribute WHERE name = 'meter' AND unit_id = distance_id
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '342.43', id FROM tb_unit_attribute WHERE name = 'centimeter' AND unit_id = distance_id
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '25.00', id FROM tb_unit_attribute WHERE name = 'inch' AND unit_id = distance_id
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '3.00', id FROM tb_unit_attribute WHERE name = 'feet' AND unit_id = distance_id
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '1.25', id FROM tb_unit_attribute WHERE name = 'yard' AND unit_id = distance_id
+  ON CONFLICT DO NOTHING;
+
+  -- Temperature: e.g., "43" for celsius, "86" for fahrenheit, "316.15" for kelvin
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '43', id FROM tb_unit_attribute WHERE name = 'celsius' AND unit_id = temperature_id
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '86', id FROM tb_unit_attribute WHERE name = 'fahrenheit' AND unit_id = temperature_id
+  ON CONFLICT DO NOTHING;
+
+  INSERT INTO tb_unit_val (value, attribute_id)
+  SELECT '316.15', id FROM tb_unit_attribute WHERE name = 'kelvin' AND unit_id = temperature_id
+  ON CONFLICT DO NOTHING;
 END $$;
 
 -- Done

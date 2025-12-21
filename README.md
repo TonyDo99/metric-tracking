@@ -1,73 +1,271 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Metric Tracking System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS-based service for tracking metrics with support for multiple units and unit types:
+- Distance: meter, centimeter, inch, feet, yard
+- Temperature: celsius (°C), fahrenheit (°F), kelvin (°K)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project uses:
+- NestJS
+- PostgreSQL
+- TypeORM (with snake_naming_strategy)
+- UUID primary keys
+- Docker Compose for local DB provisioning
+- Global response interceptor and exception filter for consistent API responses
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Table of Contents
 
-## Installation
+1. Prerequisites
+2. Project Structure
+3. Configuration
+4. Database Setup and Seeding
+5. Running the App
+6. API Usage
+7. Implementation Notes
+8. Development Tips
+9. Troubleshooting
+10. License
 
-```bash
-$ pnpm install
+---
+
+## 1) Prerequisites
+
+- Node.js 18+ and pnpm
+- Docker and Docker Compose
+- A terminal with access to your environment variables
+
+---
+
+## 2) Project Structure
+
+Relevant directories and files:
+- src/
+  - app.module.ts
+  - main.ts
+  - controllers/unit.controller.ts
+  - services/unit.service.ts
+  - entities/
+    - unit.entity.ts
+    - unit_attribute.entity.ts
+    - unit_val.entity.ts
+    - abstract.entity.ts
+  - infrastructures/
+    - database/database.module.ts
+    - http/response.interceptor.ts
+    - http/http-exception.filter.ts
+- seeding/init.sql
+- docker-compose.yml
+- .env
+- package.json
+
+---
+
+## 3) Configuration
+
+Create a `.env` file in the project root with the following variables:
+
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=metric_user
+DB_PASSWORD=metric_password
+DB_NAME=metric_db
+PORT=3000
 ```
 
-## Running the app
+Notes:
+- `docker-compose.yml` reads DB_* and mounts `seeding/init.sql` so the database is initialized and seeded on first run.
+- The app reads `PORT` for the HTTP server port.
 
-```bash
-# development
-$ pnpm run start
+---
 
-# watch mode
-$ pnpm run start:dev
+## 4) Database Setup and Seeding
 
-# production mode
-$ pnpm run start:prod
+This project expects a PostgreSQL database. The Docker Compose service will:
+- Start Postgres
+- Create the database
+- Run `seeding/init.sql` once (only the first time a new data volume is created)
+
+Tables:
+- `tb_unit` — unit types (Distance, Temperature) with UUID PK and timestamps
+- `tb_unit_attribute` — unit attributes (meter, celsius, etc.) with UUID PK and FK `unit_id`
+- `tb_unit_val` — sample values per attribute as numeric strings (e.g., "342.43")
+
+Seeding includes:
+- Units: Distance, Temperature
+- Attributes:
+  - Distance: meter (base), centimeter, inch, feet, yard
+  - Temperature: celsius (base), fahrenheit, kelvin
+- Sample values (strings):
+  - Distance: "12.50" (meter), "342.43" (centimeter), "25.00" (inch), "3.00" (feet), "1.25" (yard)
+  - Temperature: "43" (celsius), "86" (fahrenheit), "316.15" (kelvin)
+
+Important:
+- Postgres only runs `init.sql` during first-time initialization of the data directory.
+- To re-run the seed, you must remove the volume.
+
+Reset the DB to re-seed:
+```
+docker compose down -v
+docker compose up -d
 ```
 
-## Test
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## 5) Running the App
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+Install dependencies:
+```
+pnpm install
 ```
 
-## Support
+Start Postgres via Docker Compose:
+```
+docker compose up -d
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Run the app (development):
+```
+pnpm run start:dev
+```
 
-## Stay in touch
+Run the app (production build):
+```
+pnpm run build
+pnpm run start:prod
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The server will start on `http://localhost:3000` unless you change `PORT` in `.env`.
 
-## License
+---
 
-Nest is [MIT licensed](LICENSE).
+## 6) API Usage
+
+Global response and error format:
+- Success response envelope:
+  ```
+  {
+    "success": true,
+    "data": ...,
+    "message": "optional",
+    "path": "/requested/path",
+    "timestamp": "ISO date string",
+    "meta": { "optional": "metadata" }
+  }
+  ```
+- Error response envelope:
+  ```
+  {
+    "success": false,
+    "statusCode": 400,
+    "message": "description",
+    "error": "Bad Request",
+    "path": "/requested/path",
+    "timestamp": "ISO date string",
+    "errors": ["validation messages or details"],
+    "meta": { "optional": "metadata" }
+  }
+  ```
+
+Endpoints:
+- GET `/units/`
+  - Query parameters (optional):
+    - `type`: "Distance" or "Temperature"
+    - `unit`: e.g., "meter", "celsius"
+    - `period`: integer months to filter by recent created_at, e.g., `period=6`
+  - Behavior:
+    - No filters → lists all units with attributes and values
+    - With `type` and optionally `unit`/`period` → filters accordingly
+    - Validates that the provided `unit` belongs to the `type`
+
+Examples:
+
+1) List all units
+```
+GET http://localhost:3000/units/
+```
+
+2) Filter by type (Distance)
+```
+GET http://localhost:3000/units/?type=Distance
+```
+
+3) Filter by type and unit (Temperature + celsius)
+```
+GET http://localhost:3000/units/?type=Temperature&unit=celsius
+```
+
+4) Filter by type, unit, and last N months
+```
+GET http://localhost:3000/units/?type=Distance&unit=meter&period=3
+```
+
+---
+
+## 7) Implementation Notes
+
+Entities:
+- UUID primary keys using TypeORM’s `@PrimaryGeneratedColumn('uuid')`
+- `UnitEntity` and `UnitValEntity` extend `AbstractEntity` to include `createdAt`, `updatedAt`, `deletedAt`
+- Relations:
+  - `UnitEntity` 1..N `UnitAttributeEntity`
+  - `UnitAttributeEntity` N..1 `UnitEntity`
+  - `UnitAttributeEntity` 1..N `UnitValEntity`
+  - `UnitValEntity` N..1 `UnitAttributeEntity` (property `attribute`)
+- Naming strategy: snake case (managed in database module)
+
+Database Module:
+- Uses `TypeOrmModule.forRootAsync(...)` with:
+  - Postgres connection from environment variables
+  - Snake naming strategy
+  - Synchronize off (SQL schema managed by `seeding/init.sql`)
+
+Repositories in Module Scope:
+- Import `TypeOrmModule.forFeature([UnitEntity, UnitAttributeEntity, UnitValEntity])` in the module that declares `UnitService` to ensure repositories are injectable.
+
+Global HTTP Layer:
+- ResponseInterceptor for success envelope
+- HttpExceptionFilter for error envelope
+- ValidationPipe enabled globally with transformation
+
+Service Methods (JSDoc added):
+- `validationBiz(payload)` — validates type existence, unit existence, and membership
+- `findByConditions(payload)` — filters data and transforms values via conversion utilities
+- `listAll()` — lists all units with attributes and values
+- `units(payload)` — entry point that chooses between `listAll` and `findByConditions` with business validation
+
+---
+
+## 8) Development Tips
+
+- Ensure your `.env` matches `docker-compose.yml` values so the app can connect to the DB.
+- Keep `synchronize: false` and manage your schema with SQL scripts or migrations to prevent drift.
+- If you refactor relations or entity names, update the seed accordingly to keep alignment.
+- The seed script uses UUID default generation and sets FK constraints and helpful indexes.
+
+---
+
+## 9) Troubleshooting
+
+- “No metadata for UnitEntity was found.”:
+  - Ensure the TypeORM connection includes your entity classes.
+  - Ensure the module that declares the service imports `TypeOrmModule.forFeature([...])`.
+  - Avoid mixed import paths that could duplicate entity classes.
+
+- Seed didn’t run:
+  - Postgres only runs `init.sql` on first initialization of the data directory.
+  - Reset the volume:
+    ```
+    docker compose down -v
+    docker compose up -d
+    ```
+
+- Repository DI errors (UnknownDependenciesException):
+  - Make sure you’ve imported `TypeOrmModule.forFeature([...])` in the module where the service is provided or export it from a global database module.
+
+---
+
+## 10) License
+
+MIT

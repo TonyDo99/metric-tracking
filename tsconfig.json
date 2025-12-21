@@ -9,7 +9,7 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
@@ -18,8 +18,10 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@services": ["src/services"],
-      "@controllers": ["src/controllers"]
+      "@/*": ["src/*"],
+      "@services/*": ["src/services/*"],
+      "@resolvers/*": ["src/resolvers/*"],
+      "@infrastructures/*": ["src/infrastructures/*"]
     }
   }
 }

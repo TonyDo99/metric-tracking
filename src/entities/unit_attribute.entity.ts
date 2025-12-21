@@ -16,9 +16,12 @@ export class UnitAttributeEntity extends AbstractEntity {
   @Column({ type: 'bool', default: false })
   base: boolean;
 
+  @Column({ type: 'uuid', nullable: false })
+  unitId: string;
+
   @ManyToOne(() => UnitEntity, (ref) => ref.attributes)
   unit: UnitEntity;
 
   @OneToMany(() => UnitValEntity, (ref) => ref.attribute)
-  attributes: UnitValEntity[];
+  values: UnitValEntity[];
 }
