@@ -13,7 +13,11 @@ export class UnitAttributeEntity extends AbstractEntity {
   @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ type: 'bool', default: false })
+  @Column({
+    type: 'bool',
+    default: false,
+    comment: 'Base unit attribute used for conversion',
+  })
   base: boolean;
 
   @Column({ type: 'uuid', nullable: false })

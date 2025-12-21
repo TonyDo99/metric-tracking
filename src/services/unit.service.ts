@@ -136,10 +136,12 @@ export class UnitService {
     try {
       const { limit, page } = payload;
 
+      console.log(limit, page);
+
       return await this.unitEntity
         .createQueryBuilder('u')
         .select(['u.id', 'u.name', 'u.created_at'])
-        .addSelect(['ua.name'])
+        .addSelect(['ua.name', 'ua.base'])
         .addSelect(['val.value'])
         .leftJoin('u.attributes', 'ua')
         .leftJoin('ua.values', 'val')
