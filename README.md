@@ -1,4 +1,7 @@
+<img width="2282" height="1399" alt="Screenshot 2025-12-21 at 21 53 53" src="https://github.com/user-attachments/assets/b89bfccb-2a23-4403-a477-eab7073f9e34" />
+
 # Metric Tracking System
+
 
 A NestJS-based service for tracking metrics with support for multiple units and unit types:
 - Distance: meter, centimeter, inch, feet, yard

@@ -136,8 +136,6 @@ export class UnitService implements IUnitService {
     try {
       const { limit, page } = payload;
 
-      console.log(limit, page);
-
       return await this.unitEntity
         .createQueryBuilder('u')
         .select(['u.id', 'u.name', 'u.created_at'])
