@@ -1,9 +1,18 @@
-import { ChartAnalyticsDto } from '@/dtos/unit.dto';
-import { BadRequestException, Get, Inject, Query } from '@nestjs/common';
+import { ChartAnalyticsDto, CreateMetricDto } from '@/dtos/unit.dto';
+import {
+  BadRequestException,
+  Get,
+  Inject,
+  Post,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import {
   ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
@@ -17,6 +26,16 @@ export class UnitController {
     @Inject(I_UNIT_SERVICE) private readonly unitService: UnitService,
   ) {}
 
+  /**
+   * GET /metric/filter
+   * Returns filtered metrics by type/unit/period with pagination.
+   * Query params:
+   * - type: 'Distance' | 'Temperature'
+   * - unit: e.g., 'meter', 'celsius'
+   * - period: recent months to filter
+   * - page: pagination page (0-based)
+   * - limit: items per page
+   */
   @ApiQuery({
     name: 'type',
     required: false,
@@ -72,6 +91,28 @@ export class UnitController {
       );
 
       return await this.unitService.analytics(serializedPayload);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  /**
+   * POST /metric/create
+   * Creates a new metric sample value for a given type and unit attribute.
+   * Request body:
+   * - type: 'Distance' | 'Temperature'
+   * - unit: e.g., 'centimeter', 'celsius'
+   * - value: numeric string (e.g., "342.43", "43")
+   * - note?: optional note/source
+   */
+  @ApiBody({ type: CreateMetricDto })
+  @ApiCreatedResponse({ description: 'Metric value created successfully' })
+  @ApiBadRequestResponse({ description: 'Validation or processing error' })
+  @Post('/create')
+  async create(@Body() payload: CreateMetricDto) {
+    try {
+      const serializedPayload = plainToInstance(CreateMetricDto, payload);
+      return await this.unitService.createMetric(serializedPayload);
     } catch (error) {
       throw new BadRequestException(error.message);
     }

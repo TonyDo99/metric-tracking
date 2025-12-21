@@ -1,6 +1,7 @@
-import { ChartAnalyticsDto } from '@/dtos/unit.dto';
+import { ChartAnalyticsDto, CreateMetricDto } from '@/dtos/unit.dto';
 import { UnitEntity } from '@/entities/unit.entity';
 import { UnitAttributeEntity } from '@/entities/unit_attribute.entity';
+import { UnitValEntity } from '@/entities/unit_val.entity';
 import { ServiceException } from '@/exceptions/service.exception';
 import { convertDistance, convertTempature } from '@/utils/transform';
 import { Injectable } from '@nestjs/common';
@@ -23,6 +24,8 @@ export class UnitService implements IUnitService {
     private readonly unitEntity: Repository<UnitEntity>,
     @InjectRepository(UnitAttributeEntity)
     private readonly unitAttributeEntity: Repository<UnitAttributeEntity>,
+    @InjectRepository(UnitValEntity)
+    private readonly unitValEntity: Repository<UnitValEntity>,
   ) {}
 
   /**
@@ -34,7 +37,9 @@ export class UnitService implements IUnitService {
    * @param payload ChartAnalyticsDto containing `type` and `unit`
    * @throws ServiceException when validation fails
    */
-  private async validationBiz(payload: ChartAnalyticsDto): Promise<void> {
+  private async validationBiz(
+    payload: Pick<CreateMetricDto | ChartAnalyticsDto, 'type' | 'unit'>,
+  ): Promise<{ type: string; unit: string }> {
     const { type, unit } = payload;
 
     const isExistType = await this.unitEntity.findOne({
@@ -63,6 +68,11 @@ export class UnitService implements IUnitService {
         `The unit "${unit}" does not belong to this "${type}" !`,
       );
     }
+
+    return {
+      type: isExistType.id,
+      unit: isExistUnit.id,
+    };
   }
 
   /**
@@ -174,6 +184,36 @@ export class UnitService implements IUnitService {
       }
 
       return await this.findByConditions(payload);
+    } catch (error) {
+      throw new ServiceException(error.message);
+    }
+  }
+
+  /**
+   * Creates a new metric value entry in tb_unit_val for the given type and unit.
+   * - Validates that the metric `type` exists (e.g., Distance, Temperature)
+   * - Validates that the `unit` attribute exists (e.g., meter, celsius)
+   * - Ensures the unit belongs to the provided type
+   * - Persists the numeric string `value` associated with the attribute
+   *
+   * Example payloads:
+   * { type: MetricType.Distance, unit: 'centimeter', value: '342.43' }
+   * { type: MetricType.Temperature, unit: 'celsius', value: '43' }
+   *
+   * @param payload CreateMetricDto containing type, unit, and numeric string value
+   * @returns The created UnitValEntity record
+   * @throws ServiceException when validation fails or insertion errors occur
+   */
+  public async createMetric(payload: CreateMetricDto): Promise<UnitValEntity> {
+    try {
+      const { unit: unitId } = await this.validationBiz(payload);
+
+      return await this.unitValEntity.save(
+        this.unitValEntity.create({
+          value: payload.value,
+          attributeId: unitId,
+        } as unknown as UnitValEntity),
+      );
     } catch (error) {
       throw new ServiceException(error.message);
     }

@@ -172,36 +172,41 @@ Global response and error format:
   ```
 
 Endpoints:
-- GET `/units/`
+- GET `/metric/`
   - Query parameters (optional):
     - `type`: "Distance" or "Temperature"
     - `unit`: e.g., "meter", "celsius"
     - `period`: integer months to filter by recent created_at, e.g., `period=6`
   - Behavior:
     - No filters → lists all units with attributes and values
-    - With `type` and optionally `unit`/`period` → filters accordingly
+    - With `type` and optionally `units`/`period` → filters accordingly
     - Validates that the provided `unit` belongs to the `type`
 
 Examples:
 
 1) List all units
 ```
-GET http://localhost:3000/units/
+GET http://localhost:3000/metric/
 ```
 
 2) Filter by type (Distance)
 ```
-GET http://localhost:3000/units/?type=Distance
+GET http://localhost:3000/metric/?type=Distance
 ```
 
 3) Filter by type and unit (Temperature + celsius)
 ```
-GET http://localhost:3000/units/?type=Temperature&unit=celsius
+GET http://localhost:3000/metric/?type=Temperature&unit=celsius
 ```
 
 4) Filter by type, unit, and last N months
 ```
-GET http://localhost:3000/units/?type=Distance&unit=meter&period=3
+GET http://localhost:3000/metric/?type=Distance&unit=meter&period=3
+```
+
+5) Create data metric 
+```
+POST http://localhost:3000/metric/create
 ```
 
 ---
