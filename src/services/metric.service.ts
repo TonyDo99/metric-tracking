@@ -7,12 +7,10 @@ import { convertDistance, convertTempature } from '@/utils/transform';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IUnitService } from './unit.interface';
-
-export const I_UNIT_SERVICE = 'I_UNIT_SERVICE';
+import { IMetricService } from './metric.interface';
 
 @Injectable()
-export class UnitService implements IUnitService {
+export class MetricService implements IMetricService {
   /**
    * Constructs the UnitService with injected repositories.
    *

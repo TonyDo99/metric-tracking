@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import { DatabaseModule } from '@/infrastructures/database/database.module';
-import { UnitController } from './controllers/unit.controller';
-import { I_UNIT_SERVICE, UnitService } from './services/unit.service';
+import { MetricController } from '@/controllers/metric.controller';
+import { I_METRIC_SERVICE } from '@/services/metric.interface';
+import { MetricService } from '@/services/metric.service';
 
 @Module({
   imports: [
@@ -13,11 +14,11 @@ import { I_UNIT_SERVICE, UnitService } from './services/unit.service';
     }),
     DatabaseModule,
   ],
-  controllers: [UnitController],
+  controllers: [MetricController],
   providers: [
     {
-      provide: I_UNIT_SERVICE,
-      useClass: UnitService,
+      provide: I_METRIC_SERVICE,
+      useClass: MetricService,
     },
   ],
 })

@@ -17,13 +17,14 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { I_UNIT_SERVICE, UnitService } from 'src/services/unit.service';
+import { MetricService } from '@/services/metric.service';
+import { I_METRIC_SERVICE } from '@/services/metric.interface';
 
 @ApiTags('metric')
 @Controller('metric')
-export class UnitController {
+export class MetricController {
   constructor(
-    @Inject(I_UNIT_SERVICE) private readonly unitService: UnitService,
+    @Inject(I_METRIC_SERVICE) private readonly unitService: MetricService,
   ) {}
 
   /**
