@@ -10,8 +10,6 @@ import {
 } from '@nestjs/swagger';
 import { I_UNIT_SERVICE, UnitService } from 'src/services/unit.service';
 
-export const I_UNIT_CONTROLLER = 'I_UNIT_CONTROLLER';
-
 @ApiTags('metric')
 @Controller('metric')
 export class UnitController {

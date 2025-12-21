@@ -6,11 +6,12 @@ import { convertDistance, convertTempature } from '@/utils/transform';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { IUnitService } from './unit.interface';
 
 export const I_UNIT_SERVICE = 'I_UNIT_SERVICE';
 
 @Injectable()
-export class UnitService {
+export class UnitService implements IUnitService {
   /**
    * Constructs the UnitService with injected repositories.
    *
@@ -33,7 +34,7 @@ export class UnitService {
    * @param payload ChartAnalyticsDto containing `type` and `unit`
    * @throws ServiceException when validation fails
    */
-  async validationBiz(payload: ChartAnalyticsDto): Promise<void> {
+  private async validationBiz(payload: ChartAnalyticsDto): Promise<void> {
     const { type, unit } = payload;
 
     const isExistType = await this.unitEntity.findOne({
@@ -75,7 +76,7 @@ export class UnitService {
    * @returns Array of units (id, name) including matched attribute name and transformed value
    * @throws ServiceException for query or transform errors
    */
-  async findByConditions(
+  private async findByConditions(
     payload: ChartAnalyticsDto,
   ): Promise<Pick<UnitEntity, 'id' | 'name'>[]> {
     try {
@@ -129,7 +130,7 @@ export class UnitService {
    * @returns Array of UnitEntity with attributes and values
    * @throws ServiceException if the query fails
    */
-  async listAll(
+  private async listAll(
     payload: Pick<ChartAnalyticsDto, 'limit' | 'page'>,
   ): Promise<UnitEntity[]> {
     try {
@@ -162,7 +163,7 @@ export class UnitService {
    * @returns Unit list (either all or filtered) with attributes and values
    * @throws ServiceException if validation or queries fail
    */
-  async analytics(
+  public async analytics(
     payload: ChartAnalyticsDto,
   ): Promise<Pick<UnitEntity, 'id' | 'name'>[]> {
     try {
