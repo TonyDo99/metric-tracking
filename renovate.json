@@ -12,19 +12,7 @@
     "prCreation": "immediate",
     "automerge": false,
     "prBodyDefinitions": {
-      "Package": "{{{depNameLinked}}}{{#if newName}}{{#unless (equals depName newName)}} → {{{newNameLinked}}}{{/unless}}{{/if}}",
-      "Type": "{{{depType}}}",
-      "Update": "{{{updateType}}}",
-      "Current value": "{{{currentValue}}}",
-      "New value": "{{{newValue}}}",
-      "Change": "`{{{displayFrom}}}` → `{{{displayTo}}}`",
-      "Pending": "{{{displayPending}}}",
-      "References": "{{{references}}}",
-      "Package file": "{{{packageFile}}}",
-      "Age": "{{#if newVersion}}![age](https://developer.mend.io/api/mc/badges/age/{{datasource}}/{{replace '/' '%2f' packageName}}/{{{newVersion}}}?slim=true){{/if}}",
-      "Adoption": "{{#if newVersion}}![adoption](https://developer.mend.io/api/mc/badges/adoption/{{datasource}}/{{replace '/' '%2f' packageName}}/{{{newVersion}}}?slim=true){{/if}}",
-      "Passing": "{{#if newVersion}}![passing](https://developer.mend.io/api/mc/badges/compatibility/{{datasource}}/{{replace '/' '%2f' packageName}}/{{{currentVersion}}}/{{{newVersion}}}?slim=true){{/if}}",
-      "Confidence": "{{#if newVersion}}![confidence](https://developer.mend.io/api/mc/badges/confidence/{{datasource}}/{{replace '/' '%2f' packageName}}/{{{currentVersion}}}/{{{newVersion}}}?slim=true){{/if}}"
+      "Package": "{{{depNameLinked}}}{{#if newName}}{{#unless (equals depName newName)}} → {{{newNameLinked}}}{{/unless}}{{/if}}"
     }
   },
   "osvVulnerabilityAlerts": true,
