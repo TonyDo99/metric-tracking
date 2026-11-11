@@ -12,8 +12,12 @@
     "prCreation": "immediate",
     "automerge": false,
     "prBodyDefinitions": {
-      "Package": "{{{depNameLinked}}}{{#if newName}}{{#unless (equals depName newName)}} → {{{newNameLinked}}}{{/unless}}{{/if}}"
-    }
+      "Package": "{{{depNameLinked}}}{{#if newName}}{{#unless (equals depName newName)}} → {{{newNameLinked}}}{{/unless}}{{/if}}",
+      "Update": "{{{updateType}}}",
+      "New value": "{{{newValue}}}",
+      "References": "{{{references}}}"
+    },
+    "prBodyColumns": ["Package", "Update", "New value", "References"]
   },
   "osvVulnerabilityAlerts": true,
   "dependencyDashboardOSVVulnerabilitySummary": "all",
