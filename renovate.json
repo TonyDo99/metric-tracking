@@ -8,10 +8,9 @@
     "enabled": true,
     "recreateWhen": "always",
     "branchTopic": "lock-file-maintenance",
-    "commitMessageAction": "Lock file maintenance",
+    "commitMessageAction": "yarn.lock maintainance on track",
     "prCreation": "immediate",
-    "automerge": false,
-    "prBodyDefinitions": { "Change": "All locks refreshed" }
+    "automerge": false
   },
   "osvVulnerabilityAlerts": true,
   "dependencyDashboardOSVVulnerabilitySummary": "all",
