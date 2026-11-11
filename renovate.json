@@ -1,6 +1,55 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Ho_Chi_Minh",
+  "rebaseWhen": "behind-base-branch",
+  "recreateClosed": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "recreateWhen": "always",
+    "branchTopic": "lock-file-maintenance",
+    "commitMessageAction": "Lock file maintenance",
+    "prCreation": "immediate",
+    "automerge": false,
+    "prBodyDefinitions": { "Change": "All locks refreshed" }
+  },
+  "osvVulnerabilityAlerts": true,
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "dependencyDashboardApproval": true,
+    "labels": ["dependencies", "vulnerability"],
+    "prCreation": "immediate",
+    "automerge": false,
+    "assignees": ["phat-do-tpv-clv"],
+    "vulnerabilityFixStrategy": "lowest",
+    "prConcurrentLimit": 5
+  },
+  "packageRules": [
+    {
+      "description": "Re-enable npm dependencies (the org preset disables all npm except NestJS/TypeScript)",
+      "matchManagers": ["npm"],
+      "enabled": true
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "enabled": false
+    },
+    {
+      "matchDepTypes": ["resolutions"],
+      "enabled": true,
+      "rangeStrategy": "pin",
+      "prPriority": 3
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["/^@nestjs\\//"],
+      "enabled": true,
+      "allowedVersions": "11.x",
+      "labels": ["renovate", "dependencies", "nestjs"],
+      "groupName": "NestJS 11 dependencies",
+      "prPriority": 1
+    }
   ]
 }
